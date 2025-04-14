@@ -1,9 +1,9 @@
 
+
 import streamlit as st
 from dotenv import load_dotenv
 import os
 import requests
-import pandas as pd
 from datetime import datetime
 
 load_dotenv()
@@ -16,6 +16,9 @@ st.set_page_config(page_title="KNOW BEFORE YOU GO", layout="centered")
 st.markdown("""
 <style>
     body {background-color: #121212; color: white;}
+    .header {display: flex; align-items: center; gap: 10px; margin-bottom: 20px;}
+    .header img {height: 50px; border-radius: 8px;}
+    .title {font-size: 28px; font-weight: bold;}
     .temp-now {font-size: 64px; font-weight: bold; color: #FFFFFF;}
     .section-title {font-size: 24px; font-weight: bold; margin-top: 20px;}
     .live-box {display: flex; background-color: #1E1E1E; padding: 20px; border-radius: 12px; margin-bottom: 20px;}
@@ -35,7 +38,12 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h2 style='text-align:center;'>KNOW BEFORE YOU GO</h2>", unsafe_allow_html=True)
+st.markdown("""
+<div class='header'>
+    <img src='https://i.imgur.com/nb2yuxR.png' alt='Logo'>
+    <div class='title'>KNOW BEFORE YOU GO</div>
+</div>
+""", unsafe_allow_html=True)
 
 location = st.text_input("Search location")
 
@@ -82,7 +90,6 @@ if location:
         if "current_weather" in response and "daily" in response:
             weather = response["current_weather"]
             daily = response["daily"]
-
             avalanche_risk = 2
 
             st.markdown("<div class='section-title'>Live Weather Now</div>", unsafe_allow_html=True)
@@ -97,46 +104,3 @@ if location:
                     </div>
                 </div>
             """, unsafe_allow_html=True)
-
-            st.subheader("5-Day Weather Forecast")
-
-            table_html = '''
-<table>
-<thead>
-<tr>
-<th>Date</th>
-<th>Icon</th>
-<th>Max</th>
-<th>Min</th>
-<th>Wind</th>
-<th>Precip.</th>
-</tr>
-</thead>
-<tbody>
-'''
-
-            for i in range(5):
-                date = datetime.strptime(daily["time"][i], "%Y-%m-%d").strftime("%a %d %b")
-                icon = get_icon(daily["weathercode"][i])
-                tmax = f"{daily['temperature_2m_max'][i]}°C"
-                tmin = f"{daily['temperature_2m_min'][i]}°C"
-                wind = f"{daily['windspeed_10m_max'][i]} km/h"
-                precip = f"<span class='precip-badge'>{daily['precipitation_sum'][i]} mm</span>"
-
-                table_html += f'''
-<tr>
-<td>{date}</td>
-<td>{icon}</td>
-<td>{tmax}</td>
-<td>{tmin}</td>
-<td>{wind}</td>
-<td>{precip}</td>
-</tr>
-'''
-
-            table_html += "</tbody></table>"
-
-            st.markdown(table_html, unsafe_allow_html=True)
-
-        else:
-            st.info("Weather data not available.")
