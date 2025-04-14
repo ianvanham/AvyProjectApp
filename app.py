@@ -1,4 +1,5 @@
 
+
 import streamlit as st
 from dotenv import load_dotenv
 import os
@@ -14,7 +15,7 @@ WEBCAM_API_KEY = os.getenv("WEBCAM_API_KEY")
 st.set_page_config(page_title="KNOW BEFORE YOU GO", layout="centered")
 
 # CSS Style
-st.markdown("""
+st.markdown(""" 
     <style>
         body {background-color: #121212; color: white;}
         .temp-now {font-size: 56px; font-weight: bold;}
@@ -38,12 +39,16 @@ weather_icons = {
     "fog": "🌫️",
 }
 
+# Mapping da weathercode numerico a descrizione meteo
+weathercode_map = {
+    0: "clear", 1: "clear", 2: "clear",
+    3: "cloud", 45: "fog", 48: "fog",
+    51: "rain", 53: "rain", 55: "rain", 61: "rain", 63: "rain", 65: "rain", 80: "rain",
+    71: "snow", 73: "snow", 75: "snow", 85: "snow", 86: "snow"
+}
+
 def get_icon(description):
-    desc = description.lower()
-    for key in weather_icons:
-        if key in desc:
-            return weather_icons[key]
-    return "🌡️"
+    return weather_icons.get(description, "🌡️")
 
 def get_risk_badge(level):
     if level == "Low":
@@ -62,26 +67,31 @@ if location:
 
         st.map({'lat': [lat], 'lon': [lon]})
 
-        weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min&timezone=auto"
+        weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto"
         weather_response = requests.get(weather_url).json()
 
         if "current_weather" in weather_response and "daily" in weather_response:
             weather = weather_response["current_weather"]
             daily = weather_response["daily"]
-            condition = str(weather["weathercode"])
+
+            code = weather["weathercode"]
+            condition = weathercode_map.get(code, "cloud")
 
             st.subheader("Current Weather")
             col1, col2 = st.columns([2, 1])
             with col1:
                 st.markdown(f"<div class='temp-now'>{weather['temperature']}°C</div>", unsafe_allow_html=True)
-                st.markdown(f"{weather['windspeed']} km/h")
+                st.markdown(f"Max: {daily['temperature_2m_max'][0]}° Min: {daily['temperature_2m_min'][0]}°")
+                st.markdown(f"Wind: {weather['windspeed']} km/h")
             with col2:
                 st.markdown(get_icon(condition), unsafe_allow_html=True)
 
             st.markdown("<div class='section-title'>5-Day Weather Forecast</div>", unsafe_allow_html=True)
+            days = pd.to_datetime(daily["time"]).strftime("%a")
+            icons = [get_icon(weathercode_map.get(code, "cloud")) for code in daily["weathercode"]]
             df = pd.DataFrame({
-                "Day": pd.to_datetime(daily["time"]).strftime("%a"),
-                "Icon": [get_icon(condition)]*5,
+                "Day": days,
+                "Icon": icons,
                 "Max (°C)": daily["temperature_2m_max"],
                 "Min (°C)": daily["temperature_2m_min"],
             })
@@ -92,7 +102,7 @@ if location:
 
             st.markdown("<div class='section-title'>Webcams</div>", unsafe_allow_html=True)
             for i in range(2):
-                st.image("https://raw.githubusercontent.com/mattiavilla/icons/main/mountain.jpg", use_column_width=True)
+                st.image("https://raw.githubusercontent.com/mattiavilla/icons/main/mountain.jpg", use_container_width=True)
 
         else:
             st.info("Weather data not available.")
