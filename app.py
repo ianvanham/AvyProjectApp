@@ -16,9 +16,12 @@ st.set_page_config(page_title="KNOW BEFORE YOU GO", layout="centered")
 st.markdown("""
 <style>
     body {background-color: #121212; color: white;}
-    .temp-now {font-size: 56px; font-weight: bold;}
+    .temp-now {font-size: 64px; font-weight: bold;}
     .section-title {font-size: 24px; font-weight: bold; margin-top: 20px;}
-    .live-weather-box {background-color: #1E1E1E; padding: 20px; border-radius: 12px; margin-bottom: 20px;}
+    .live-box {display: flex; background-color: #1E1E1E; padding: 20px; border-radius: 12px; margin-bottom: 20px;}
+    .left {flex: 1; text-align: center; font-size: 80px;}
+    .right {flex: 1; text-align: center;}
+    .line {border-top: 1px solid #444; margin: 10px 0;}
     table {width: 100%; border-collapse: collapse;}
     th, td {padding: 12px; text-align: center; border-bottom: 1px solid #333;}
     th {background-color: #1E1E1E; color: white;}
@@ -69,9 +72,14 @@ if location:
 
             st.markdown("<div class='section-title'>Live Weather Now</div>", unsafe_allow_html=True)
             st.markdown(f"""
-                <div class='live-weather-box'>
-                    <div style='font-size:48px; text-align:center;'>{weather['temperature']}°C</div>
-                    <div style='font-size:18px; text-align:center;'>{get_icon(weather['weathercode'])} | Wind: {weather['windspeed']} km/h</div>
+                <div class='live-box'>
+                    <div class='left'>{get_icon(weather['weathercode'])}</div>
+                    <div class='right'>
+                        <div class='temp-now'>{weather['temperature']}°C</div>
+                        <div class='line'></div>
+                        <div>Wind: {weather['windspeed']} km/h</div>
+                        <div>Avalanche Risk: 2 / 5</div>
+                    </div>
                 </div>
             """, unsafe_allow_html=True)
 
