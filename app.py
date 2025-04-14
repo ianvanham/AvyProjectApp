@@ -16,12 +16,17 @@ st.set_page_config(page_title="KNOW BEFORE YOU GO", layout="centered")
 st.markdown("""
 <style>
     body {background-color: #121212; color: white;}
-    .temp-now {font-size: 64px; font-weight: bold;}
+    .temp-now {font-size: 64px; font-weight: bold; color: #FFFFFF;}
     .section-title {font-size: 24px; font-weight: bold; margin-top: 20px;}
     .live-box {display: flex; background-color: #1E1E1E; padding: 20px; border-radius: 12px; margin-bottom: 20px;}
     .left {flex: 1; text-align: center; font-size: 80px;}
     .right {flex: 1; text-align: center;}
-    .line {border-top: 1px solid #444; margin: 10px 0;}
+    .line {border-top: 1px solid #555; margin: 10px 0;}
+    .info {color: #CCCCCC; font-size: 18px; margin-top: 4px;}
+    .risk-badge {padding: 4px 12px; border-radius: 8px; font-weight: bold; display: inline-block;}
+    .risk-low {background-color: #4CAF50; color: white;}
+    .risk-medium {background-color: #FFC107; color: black;}
+    .risk-high {background-color: #F44336; color: white;}
     table {width: 100%; border-collapse: collapse;}
     th, td {padding: 12px; text-align: center; border-bottom: 1px solid #333;}
     th {background-color: #1E1E1E; color: white;}
@@ -53,6 +58,14 @@ def get_icon(code):
     condition = weathercode_map.get(code, "cloud")
     return weather_icons.get(condition, "🌡️")
 
+def risk_badge(level):
+    if level <= 2:
+        return "<span class='risk-badge risk-low'>Low</span>"
+    elif level == 3:
+        return "<span class='risk-badge risk-medium'>Medium</span>"
+    else:
+        return "<span class='risk-badge risk-high'>High</span>"
+
 if location:
     geo_url = f"https://api.geoapify.com/v1/geocode/search?text={location}&apiKey={GEOAPIFY_API_KEY}"
     geo_response = requests.get(geo_url).json()
@@ -70,6 +83,8 @@ if location:
             weather = response["current_weather"]
             daily = response["daily"]
 
+            avalanche_risk = 2
+
             st.markdown("<div class='section-title'>Live Weather Now</div>", unsafe_allow_html=True)
             st.markdown(f"""
                 <div class='live-box'>
@@ -77,8 +92,8 @@ if location:
                     <div class='right'>
                         <div class='temp-now'>{weather['temperature']}°C</div>
                         <div class='line'></div>
-                        <div>Wind: {weather['windspeed']} km/h</div>
-                        <div>Avalanche Risk: 2 / 5</div>
+                        <div class='info'>Wind: {weather['windspeed']} km/h</div>
+                        <div class='info'>Avalanche Risk: {risk_badge(avalanche_risk)}</div>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
