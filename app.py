@@ -5,25 +5,37 @@ from dotenv import load_dotenv
 import os
 import requests
 import pandas as pd
+from datetime import datetime
 
 load_dotenv()
 
 GEOAPIFY_API_KEY = os.getenv("GEOAPIFY_API_KEY")
 OPEN_METEO_API_KEY = os.getenv("OPEN_METEO_API_KEY")
-WEBCAM_API_KEY = os.getenv("WEBCAM_API_KEY")
 
 st.set_page_config(page_title="KNOW BEFORE YOU GO", layout="centered")
 
-# CSS Style
-st.markdown(""" 
+st.markdown("""
     <style>
         body {background-color: #121212; color: white;}
         .temp-now {font-size: 56px; font-weight: bold;}
         .section-title {font-size: 24px; font-weight: bold; margin-top: 20px;}
-        .badge {padding: 4px 12px; border-radius: 12px; color: white; display: inline-block; font-weight: bold;}
-        .low {background-color: green;}
-        .medium {background-color: orange;}
-        .high {background-color: red;}
+        .forecast-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 16px;
+        }
+        .forecast-table th, .forecast-table td {
+            border: 1px solid #444;
+            padding: 10px;
+            text-align: center;
+        }
+        .forecast-table th {
+            background-color: #1E1E1E;
+        }
+        .precip-badge {
+            color: #00BFFF;
+            font-weight: bold;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -39,7 +51,6 @@ weather_icons = {
     "fog": "🌫️",
 }
 
-# Mapping da weathercode numerico a descrizione meteo
 weathercode_map = {
     0: "clear", 1: "clear", 2: "clear",
     3: "cloud", 45: "fog", 48: "fog",
@@ -47,15 +58,9 @@ weathercode_map = {
     71: "snow", 73: "snow", 75: "snow", 85: "snow", 86: "snow"
 }
 
-def get_icon(description):
-    return weather_icons.get(description, "🌡️")
-
-def get_risk_badge(level):
-    if level == "Low":
-        return "<span class='badge low'>Low</span>"
-    if level == "Medium":
-        return "<span class='badge medium'>Medium</span>"
-    return "<span class='badge high'>High</span>"
+def get_icon(code):
+    condition = weathercode_map.get(code, "cloud")
+    return weather_icons.get(condition, "🌡️")
 
 if location:
     geo_url = f"https://api.geoapify.com/v1/geocode/search?text={location}&apiKey={GEOAPIFY_API_KEY}"
@@ -67,45 +72,49 @@ if location:
 
         st.map({'lat': [lat], 'lon': [lon]})
 
-        weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto"
-        weather_response = requests.get(weather_url).json()
+        forecast_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max,weathercode&timezone=auto"
+        response = requests.get(forecast_url).json()
 
-        if "current_weather" in weather_response and "daily" in weather_response:
-            weather = weather_response["current_weather"]
-            daily = weather_response["daily"]
+        if "daily" in response:
+            daily = response["daily"]
 
-            code = weather["weathercode"]
-            condition = weathercode_map.get(code, "cloud")
+            st.subheader("5-Day Weather Forecast")
+            table_html = '''
+            <table class="forecast-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Icon</th>
+                        <th>Max</th>
+                        <th>Min</th>
+                        <th>Wind</th>
+                        <th>Precip.</th>
+                    </tr>
+                </thead>
+                <tbody>
+            '''
 
-            st.subheader("Current Weather")
-            col1, col2 = st.columns([2, 1])
-            with col1:
-                st.markdown(f"<div class='temp-now'>{weather['temperature']}°C</div>", unsafe_allow_html=True)
-                st.markdown(f"Max: {daily['temperature_2m_max'][0]}° Min: {daily['temperature_2m_min'][0]}°")
-                st.markdown(f"Wind: {weather['windspeed']} km/h")
-            with col2:
-                st.markdown(get_icon(condition), unsafe_allow_html=True)
+            for i in range(5):
+                date = datetime.strptime(daily["time"][i], "%Y-%m-%d").strftime("%a %d %b")
+                icon = get_icon(daily["weathercode"][i])
+                tmax = f"{daily['temperature_2m_max'][i]}°C"
+                tmin = f"{daily['temperature_2m_min'][i]}°C"
+                wind = f"{daily['windspeed_10m_max'][i]} km/h"
+                precip = f"<span class='precip-badge'>{daily['precipitation_sum'][i]} mm</span>"
 
-            st.markdown("<div class='section-title'>5-Day Weather Forecast</div>", unsafe_allow_html=True)
-            days = pd.to_datetime(daily["time"]).strftime("%a")
-            icons = [get_icon(weathercode_map.get(code, "cloud")) for code in daily["weathercode"]]
-            df = pd.DataFrame({
-                "Day": days,
-                "Icon": icons,
-                "Max (°C)": daily["temperature_2m_max"],
-                "Min (°C)": daily["temperature_2m_min"],
-            })
-            st.dataframe(df.head(5), use_container_width=True)
+                table_html += f'''
+                    <tr>
+                        <td>{date}</td>
+                        <td>{icon}</td>
+                        <td>{tmax}</td>
+                        <td>{tmin}</td>
+                        <td>{wind}</td>
+                        <td>{precip}</td>
+                    </tr>
+                '''
 
-            st.markdown("<div class='section-title'>Avalanche Risk</div>", unsafe_allow_html=True)
-            st.markdown(get_risk_badge("Low"), unsafe_allow_html=True)
-
-            st.markdown("<div class='section-title'>Webcams</div>", unsafe_allow_html=True)
-            for i in range(2):
-                st.image("https://raw.githubusercontent.com/mattiavilla/icons/main/mountain.jpg", use_container_width=True)
+            table_html += "</tbody></table>"
+            st.markdown(table_html, unsafe_allow_html=True)
 
         else:
             st.info("Weather data not available.")
-
-    else:
-        st.error("Location not found. Try another one.")
