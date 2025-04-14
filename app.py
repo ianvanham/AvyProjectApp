@@ -118,3 +118,9 @@ if location:
 
         else:
             st.info("Weather data not available.")
+
+        # Avalanche Risk Placeholder
+        st.markdown("<div class='section-title'>Avalanche Risk</div>", unsafe_allow_html=True)
+        st.warning("Avalanche risk data coming soon.")
+
+        
