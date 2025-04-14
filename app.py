@@ -18,6 +18,7 @@ st.markdown("""
     body {background-color: #121212; color: white;}
     .temp-now {font-size: 56px; font-weight: bold;}
     .section-title {font-size: 24px; font-weight: bold; margin-top: 20px;}
+    .live-weather-box {background-color: #1E1E1E; padding: 20px; border-radius: 12px; margin-bottom: 20px;}
     table {width: 100%; border-collapse: collapse;}
     th, td {padding: 12px; text-align: center; border-bottom: 1px solid #333;}
     th {background-color: #1E1E1E; color: white;}
@@ -62,12 +63,20 @@ if location:
         forecast_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max,weathercode&timezone=auto"
         response = requests.get(forecast_url).json()
 
-        if "daily" in response:
+        if "current_weather" in response and "daily" in response:
+            weather = response["current_weather"]
             daily = response["daily"]
+
+            st.markdown("<div class='section-title'>Live Weather Now</div>", unsafe_allow_html=True)
+            st.markdown(f"""
+                <div class='live-weather-box'>
+                    <div style='font-size:48px; text-align:center;'>{weather['temperature']}°C</div>
+                    <div style='font-size:18px; text-align:center;'>{get_icon(weather['weathercode'])} | Wind: {weather['windspeed']} km/h</div>
+                </div>
+            """, unsafe_allow_html=True)
 
             st.subheader("5-Day Weather Forecast")
 
-            # NO INDENTATION to avoid code block display
             table_html = '''
 <table>
 <thead>
