@@ -15,7 +15,7 @@ OPEN_METEO_API_KEY = os.getenv("OPEN_METEO_API_KEY")
 st.set_page_config(page_title="KNOW BEFORE YOU GO", layout="centered")
 
 # CSS Style
-st.markdown(\"\"\"
+st.markdown("\"\"
 <style>
     body {background-color: #121212; color: white;}
     .temp-now {font-size: 64px; font-weight: bold; color: #FFFFFF;}
