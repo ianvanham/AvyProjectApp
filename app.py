@@ -5,7 +5,6 @@ import os
 import requests
 import pandas as pd
 
-# Load environment variables
 load_dotenv()
 
 # API Keys
@@ -15,61 +14,84 @@ WEBCAM_API_KEY = os.getenv("WEBCAM_API_KEY")
 
 st.set_page_config(page_title="KNOW BEFORE YOU GO", layout="centered")
 
-st.markdown("## KNOW BEFORE YOU GO")
-st.markdown("### Plan smarter. Ride safer. Stay updated.")
+# CSS Dark Mode
+st.markdown("""
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+        }
+        .big-temp {
+            font-size: 64px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .section-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+st.markdown("<h2 style='text-align:center;'>KNOW BEFORE YOU GO</h2>", unsafe_allow_html=True)
 
 location = st.text_input("Search location")
+
+def get_background(condition):
+    if "clear" in condition:
+        return "https://i.imgur.com/VW6vF3p.jpg"
+    elif "cloud" in condition:
+        return "https://i.imgur.com/QxzFcdE.jpg"
+    elif "rain" in condition:
+        return "https://i.imgur.com/4Bl7D6Q.jpg"
+    elif "snow" in condition:
+        return "https://i.imgur.com/ITIW63y.jpg"
+    else:
+        return "https://i.imgur.com/sb0YVqG.jpg"
 
 if location:
     geo_url = f"https://api.geoapify.com/v1/geocode/search?text={location}&apiKey={GEOAPIFY_API_KEY}"
     geo_response = requests.get(geo_url).json()
-    
+
     if geo_response.get("features"):
         coords = geo_response["features"][0]["geometry"]["coordinates"]
         lon, lat = coords[0], coords[1]
-        
         st.map({'lat': [lat], 'lon': [lon]})
-        
+
         # Current Weather
         st.subheader("Current Weather")
+        weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true"
+        weather_response = requests.get(weather_url).json()
 
-        meteo_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true"
-        meteo_response = requests.get(meteo_url).json()
-
-        if "current_weather" in meteo_response:
-            weather = meteo_response["current_weather"]
-            st.metric("Temperature", f"{weather['temperature']}°C")
-            st.metric("Windspeed", f"{weather['windspeed']} km/h")
+        if "current_weather" in weather_response:
+            weather = weather_response["current_weather"]
+            condition = str(weather["weathercode"])
+            bg = get_background(condition)
+            st.image(bg, use_column_width=True)
+            st.markdown(f"<div class='big-temp'>{weather['temperature']}°C</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='text-align:center;'>Wind: {weather['windspeed']} km/h</div>", unsafe_allow_html=True)
         else:
             st.info("Weather data not available.")
 
         # 5-Day Weather Forecast
-        st.subheader("5-Day Weather Forecast")
-
-        forecast_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto"
+        st.markdown("<div class='section-title'>5-Day Weather Forecast</div>", unsafe_allow_html=True)
+        forecast_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&daily=temperature_2m_max,temperature_2m_min&timezone=auto"
         forecast_response = requests.get(forecast_url).json()
 
         if "daily" in forecast_response:
             df = pd.DataFrame({
                 "Date": forecast_response["daily"]["time"],
-                "Temp Max (°C)": forecast_response["daily"]["temperature_2m_max"],
-                "Temp Min (°C)": forecast_response["daily"]["temperature_2m_min"],
-                "Precipitation (mm)": forecast_response["daily"]["precipitation_sum"]
+                "Max (°C)": forecast_response["daily"]["temperature_2m_max"],
+                "Min (°C)": forecast_response["daily"]["temperature_2m_min"]
             })
-            st.table(df.head(5))
+            st.dataframe(df.head(5))
         else:
             st.info("Forecast data not available.")
 
-        st.warning("Avalanche risk data coming soon based on your area.")
+        # Avalanche Risk Placeholder
+        st.markdown("<div class='section-title'>Avalanche Risk</div>", unsafe_allow_html=True)
+        st.warning("Avalanche risk data coming soon.")
 
-        webcam_url = f"https://api.windy.com/api/webcams/v2/list/nearby={lat},{lon},10?show=webcams:location,image&key={WEBCAM_API_KEY}"
-        webcam_response = requests.get(webcam_url).json()
-        
-        if webcam_response.get("result", {}).get("webcams"):
-            st.subheader("Nearby Webcams")
-            for cam in webcam_response["result"]["webcams"][:3]:
-                st.image(cam["image"]["current"]["preview"])
-        else:
-            st.info("No webcams found nearby.")
     else:
         st.error("Location not found. Try another one.")
