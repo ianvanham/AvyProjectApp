@@ -1,11 +1,11 @@
 
-
 import streamlit as st
 from dotenv import load_dotenv
 import os
 import requests
 import pandas as pd
 from datetime import datetime
+import streamlit.components.v1 as components
 
 load_dotenv()
 
@@ -84,7 +84,7 @@ if location:
             weather = response["current_weather"]
             daily = response["daily"]
 
-            avalanche_risk = 2
+            avalanche_risk = 2  # static for now
 
             st.markdown("<div class='section-title'>Live Weather Now</div>", unsafe_allow_html=True)
             st.markdown(f"""
@@ -98,6 +98,10 @@ if location:
                     </div>
                 </div>
             """, unsafe_allow_html=True)
+
+            # New Avalanche Bulletin Plugin
+            st.markdown("<div class='section-title'>Official Avalanche Bulletin</div>", unsafe_allow_html=True)
+            components.iframe("https://bollettini.aineva.it/bulletin/latest", height=600, scrolling=True)
 
             st.subheader("5-Day Weather Forecast")
 
