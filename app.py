@@ -1,5 +1,4 @@
 
-
 import streamlit as st
 from dotenv import load_dotenv
 import os
@@ -19,23 +18,11 @@ st.markdown("""
         body {background-color: #121212; color: white;}
         .temp-now {font-size: 56px; font-weight: bold;}
         .section-title {font-size: 24px; font-weight: bold; margin-top: 20px;}
-        .forecast-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 16px;
-        }
-        .forecast-table th, .forecast-table td {
-            border: 1px solid #444;
-            padding: 10px;
-            text-align: center;
-        }
-        .forecast-table th {
-            background-color: #1E1E1E;
-        }
-        .precip-badge {
-            color: #00BFFF;
-            font-weight: bold;
-        }
+        table {width: 100%; border-collapse: collapse;}
+        th, td {padding: 12px; text-align: center; border-bottom: 1px solid #333;}
+        th {background-color: #1E1E1E; color: white;}
+        tr:hover {background-color: #2A2A2A;}
+        .precip-badge {color: #00BFFF; font-weight: bold;}
     </style>
 """, unsafe_allow_html=True)
 
@@ -79,8 +66,9 @@ if location:
             daily = response["daily"]
 
             st.subheader("5-Day Weather Forecast")
+
             table_html = '''
-            <table class="forecast-table">
+            <table>
                 <thead>
                     <tr>
                         <th>Date</th>
@@ -114,6 +102,7 @@ if location:
                 '''
 
             table_html += "</tbody></table>"
+
             st.markdown(table_html, unsafe_allow_html=True)
 
         else:
