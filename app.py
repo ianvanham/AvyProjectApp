@@ -14,16 +14,16 @@ OPEN_METEO_API_KEY = os.getenv("OPEN_METEO_API_KEY")
 st.set_page_config(page_title="KNOW BEFORE YOU GO", layout="centered")
 
 st.markdown("""
-    <style>
-        body {background-color: #121212; color: white;}
-        .temp-now {font-size: 56px; font-weight: bold;}
-        .section-title {font-size: 24px; font-weight: bold; margin-top: 20px;}
-        table {width: 100%; border-collapse: collapse;}
-        th, td {padding: 12px; text-align: center; border-bottom: 1px solid #333;}
-        th {background-color: #1E1E1E; color: white;}
-        tr:hover {background-color: #2A2A2A;}
-        .precip-badge {color: #00BFFF; font-weight: bold;}
-    </style>
+<style>
+    body {background-color: #121212; color: white;}
+    .temp-now {font-size: 56px; font-weight: bold;}
+    .section-title {font-size: 24px; font-weight: bold; margin-top: 20px;}
+    table {width: 100%; border-collapse: collapse;}
+    th, td {padding: 12px; text-align: center; border-bottom: 1px solid #333;}
+    th {background-color: #1E1E1E; color: white;}
+    tr:hover {background-color: #2A2A2A;}
+    .precip-badge {color: #00BFFF; font-weight: bold;}
+</style>
 """, unsafe_allow_html=True)
 
 st.markdown("<h2 style='text-align:center;'>KNOW BEFORE YOU GO</h2>", unsafe_allow_html=True)
@@ -67,20 +67,21 @@ if location:
 
             st.subheader("5-Day Weather Forecast")
 
+            # NO INDENTATION to avoid code block display
             table_html = '''
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Icon</th>
-                        <th>Max</th>
-                        <th>Min</th>
-                        <th>Wind</th>
-                        <th>Precip.</th>
-                    </tr>
-                </thead>
-                <tbody>
-            '''
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Icon</th>
+<th>Max</th>
+<th>Min</th>
+<th>Wind</th>
+<th>Precip.</th>
+</tr>
+</thead>
+<tbody>
+'''
 
             for i in range(5):
                 date = datetime.strptime(daily["time"][i], "%Y-%m-%d").strftime("%a %d %b")
@@ -91,15 +92,15 @@ if location:
                 precip = f"<span class='precip-badge'>{daily['precipitation_sum'][i]} mm</span>"
 
                 table_html += f'''
-                    <tr>
-                        <td>{date}</td>
-                        <td>{icon}</td>
-                        <td>{tmax}</td>
-                        <td>{tmin}</td>
-                        <td>{wind}</td>
-                        <td>{precip}</td>
-                    </tr>
-                '''
+<tr>
+<td>{date}</td>
+<td>{icon}</td>
+<td>{tmax}</td>
+<td>{tmin}</td>
+<td>{wind}</td>
+<td>{precip}</td>
+</tr>
+'''
 
             table_html += "</tbody></table>"
 
@@ -107,9 +108,3 @@ if location:
 
         else:
             st.info("Weather data not available.")
-
-        # Avalanche Risk Placeholder
-        st.markdown("<div class='section-title'>Avalanche Risk</div>", unsafe_allow_html=True)
-        st.warning("Avalanche risk data coming soon.")
-
-        
