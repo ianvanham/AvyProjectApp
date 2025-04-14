@@ -1,11 +1,11 @@
-
 import streamlit as st
 from dotenv import load_dotenv
 import os
 import requests
 import pandas as pd
 from datetime import datetime
-import streamlit.components.v1 as components
+import geopandas as gpd
+from shapely.geometry import Point
 
 load_dotenv()
 
@@ -14,6 +14,7 @@ OPEN_METEO_API_KEY = os.getenv("OPEN_METEO_API_KEY")
 
 st.set_page_config(page_title="KNOW BEFORE YOU GO", layout="centered")
 
+# CSS Style
 st.markdown("""
 <style>
     body {background-color: #121212; color: white;}
@@ -40,24 +41,15 @@ st.markdown("<h2 style='text-align:center;'>KNOW BEFORE YOU GO</h2>", unsafe_all
 
 location = st.text_input("Search location")
 
-weather_icons = {
-    "clear": "☀️",
-    "cloud": "☁️",
-    "rain": "🌧️",
-    "snow": "❄️",
-    "fog": "🌫️",
-}
+weather_icons = {"clear": "☀️", "cloud": "☁️", "rain": "🌧️", "snow": "❄️", "fog": "🌫️"}
+weathercode_map = {0: "clear", 1: "clear", 2: "clear", 3: "cloud", 45: "fog", 48: "fog",
+                   51: "rain", 53: "rain", 55: "rain", 61: "rain", 63: "rain", 65: "rain", 80: "rain",
+                   71: "snow", 73: "snow", 75: "snow", 85: "snow", 86: "snow"}
 
-weathercode_map = {
-    0: "clear", 1: "clear", 2: "clear",
-    3: "cloud", 45: "fog", 48: "fog",
-    51: "rain", 53: "rain", 55: "rain", 61: "rain", 63: "rain", 65: "rain", 80: "rain",
-    71: "snow", 73: "snow", 75: "snow", 85: "snow", 86: "snow"
-}
 
 def get_icon(code):
-    condition = weathercode_map.get(code, "cloud")
-    return weather_icons.get(condition, "🌡️")
+    return weather_icons.get(weathercode_map.get(code, "cloud"), "🌡️")
+
 
 def risk_badge(level):
     if level <= 2:
@@ -67,6 +59,35 @@ def risk_badge(level):
     else:
         return "<span class='risk-badge risk-high'>High</span>"
 
+
+@st.cache_data
+def get_aineva_region(lat, lon):
+    GEOJSON_URL = "https://bollettini.aineva.it/data/geojson/regions.geojson"
+    response = requests.get(GEOJSON_URL)
+    if response.status_code == 200:
+        gdf = gpd.read_file(response.text)
+        point = Point(lon, lat)
+        for _, row in gdf.iterrows():
+            if row['geometry'].contains(point):
+                return row['id'], row['name']
+    return None, None
+
+
+def get_bulletin(region_id):
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    BULLETIN_BASE_URL = f"https://bollettini.aineva.it/data/bulletins/{region_id}/{today}.json"
+    response = requests.get(BULLETIN_BASE_URL)
+    if response.status_code == 200:
+        return response.json()
+    return None
+
+
+def danger_level_info(level):
+    mapping = {1: ("Debole", "🟢"), 2: ("Moderato", "🟡"), 3: ("Marcato", "🟠"),
+               4: ("Forte", "🔴"), 5: ("Molto Forte", "🟣")}
+    return mapping.get(level, ("N/A", "⚪"))
+
+
 if location:
     geo_url = f"https://api.geoapify.com/v1/geocode/search?text={location}&apiKey={GEOAPIFY_API_KEY}"
     geo_response = requests.get(geo_url).json()
@@ -75,7 +96,7 @@ if location:
         coords = geo_response["features"][0]["geometry"]["coordinates"]
         lon, lat = coords[0], coords[1]
 
-        st.map({'lat': [lat], 'lon': [lon]})
+        st.map(pd.DataFrame({'lat': [lat], 'lon': [lon]}))
 
         forecast_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max,weathercode&timezone=auto"
         response = requests.get(forecast_url).json()
@@ -83,8 +104,6 @@ if location:
         if "current_weather" in response and "daily" in response:
             weather = response["current_weather"]
             daily = response["daily"]
-
-            avalanche_risk = 2  # static for now
 
             st.markdown("<div class='section-title'>Live Weather Now</div>", unsafe_allow_html=True)
             st.markdown(f"""
@@ -94,14 +113,20 @@ if location:
                         <div class='temp-now'>{weather['temperature']}°C</div>
                         <div class='line'></div>
                         <div class='info'>Wind: {weather['windspeed']} km/h</div>
-                        <div class='info'>Avalanche Risk: {risk_badge(avalanche_risk)}</div>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
 
-            # New Avalanche Bulletin Plugin
-            st.markdown("<div class='section-title'>Official Avalanche Bulletin</div>", unsafe_allow_html=True)
-            components.iframe("https://bollettini.aineva.it/bulletin/latest", height=600, scrolling=True)
+            # AINEVA AVALANCHE RISK BLOCK
+            region_id, region_name = get_aineva_region(lat, lon)
+            if region_id:
+                bulletin = get_bulletin(region_id)
+                if bulletin:
+                    danger_level = bulletin.get("danger_level", 0)
+                    level_text, level_color = danger_level_info(danger_level)
+                    st.markdown("<div class='section-title'>Avalanche Risk</div>", unsafe_allow_html=True)
+                    st.markdown(f"### {region_name} - {level_color} {level_text}")
+                    st.write(bulletin.get("bulletin_text", "No details available."))
 
             st.subheader("5-Day Weather Forecast")
 
@@ -145,3 +170,4 @@ if location:
 
         else:
             st.info("Weather data not available.")
+
