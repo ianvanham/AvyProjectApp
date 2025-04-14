@@ -15,7 +15,7 @@ OPEN_METEO_API_KEY = os.getenv("OPEN_METEO_API_KEY")
 st.set_page_config(page_title="KNOW BEFORE YOU GO", layout="centered")
 
 # CSS Style
-st.markdown("""
+st.markdown(\"\"\"
 <style>
     body {background-color: #121212; color: white;}
     .temp-now {font-size: 64px; font-weight: bold; color: #FFFFFF;}
@@ -35,7 +35,7 @@ st.markdown("""
     tr:hover {background-color: #2A2A2A;}
     .precip-badge {color: #00BFFF; font-weight: bold;}
 </style>
-""", unsafe_allow_html=True)
+\"\"\", unsafe_allow_html=True)
 
 st.markdown("<h2 style='text-align:center;'>KNOW BEFORE YOU GO</h2>", unsafe_allow_html=True)
 
@@ -46,10 +46,8 @@ weathercode_map = {0: "clear", 1: "clear", 2: "clear", 3: "cloud", 45: "fog", 48
                    51: "rain", 53: "rain", 55: "rain", 61: "rain", 63: "rain", 65: "rain", 80: "rain",
                    71: "snow", 73: "snow", 75: "snow", 85: "snow", 86: "snow"}
 
-
 def get_icon(code):
     return weather_icons.get(weathercode_map.get(code, "cloud"), "🌡️")
-
 
 def risk_badge(level):
     if level <= 2:
@@ -58,7 +56,6 @@ def risk_badge(level):
         return "<span class='risk-badge risk-medium'>Medium</span>"
     else:
         return "<span class='risk-badge risk-high'>High</span>"
-
 
 @st.cache_data
 def get_aineva_region(lat, lon):
@@ -72,7 +69,6 @@ def get_aineva_region(lat, lon):
                 return row['id'], row['name']
     return None, None
 
-
 def get_bulletin(region_id):
     today = datetime.utcnow().strftime("%Y-%m-%d")
     BULLETIN_BASE_URL = f"https://bollettini.aineva.it/data/bulletins/{region_id}/{today}.json"
@@ -81,12 +77,10 @@ def get_bulletin(region_id):
         return response.json()
     return None
 
-
 def danger_level_info(level):
     mapping = {1: ("Debole", "🟢"), 2: ("Moderato", "🟡"), 3: ("Marcato", "🟠"),
                4: ("Forte", "🔴"), 5: ("Molto Forte", "🟣")}
     return mapping.get(level, ("N/A", "⚪"))
-
 
 if location:
     geo_url = f"https://api.geoapify.com/v1/geocode/search?text={location}&apiKey={GEOAPIFY_API_KEY}"
@@ -117,57 +111,20 @@ if location:
                 </div>
             """, unsafe_allow_html=True)
 
-            # AINEVA AVALANCHE RISK BLOCK
             region_id, region_name = get_aineva_region(lat, lon)
             if region_id:
                 bulletin = get_bulletin(region_id)
                 if bulletin:
                     danger_level = bulletin.get("danger_level", 0)
                     level_text, level_color = danger_level_info(danger_level)
+
                     st.markdown("<div class='section-title'>Avalanche Risk</div>", unsafe_allow_html=True)
                     st.markdown(f"### {region_name} - {level_color} {level_text}")
                     st.write(bulletin.get("bulletin_text", "No details available."))
 
-            st.subheader("5-Day Weather Forecast")
-
-            table_html = '''
-<table>
-<thead>
-<tr>
-<th>Date</th>
-<th>Icon</th>
-<th>Max</th>
-<th>Min</th>
-<th>Wind</th>
-<th>Precip.</th>
-</tr>
-</thead>
-<tbody>
-'''
-
-            for i in range(5):
-                date = datetime.strptime(daily["time"][i], "%Y-%m-%d").strftime("%a %d %b")
-                icon = get_icon(daily["weathercode"][i])
-                tmax = f"{daily['temperature_2m_max'][i]}°C"
-                tmin = f"{daily['temperature_2m_min'][i]}°C"
-                wind = f"{daily['windspeed_10m_max'][i]} km/h"
-                precip = f"<span class='precip-badge'>{daily['precipitation_sum'][i]} mm</span>"
-
-                table_html += f'''
-<tr>
-<td>{date}</td>
-<td>{icon}</td>
-<td>{tmax}</td>
-<td>{tmin}</td>
-<td>{wind}</td>
-<td>{precip}</td>
-</tr>
-'''
-
-            table_html += "</tbody></table>"
-
-            st.markdown(table_html, unsafe_allow_html=True)
-
-        else:
-            st.info("Weather data not available.")
-
+                    aineva_url = f"https://bollettini.aineva.it/#lat={lat}&lon={lon}"
+                    st.markdown("<div class='section-title'>Avalanche Map (clickable)</div>", unsafe_allow_html=True)
+                    st.markdown(
+                        f"<a href='{aineva_url}' target='_blank' style='font-size:18px; font-weight:bold; color:#00BFFF;'>🌐 Open Avalanche Map for this Area</a>",
+                        unsafe_allow_html=True
+                    )
