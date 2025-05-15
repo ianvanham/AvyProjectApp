@@ -38,33 +38,68 @@ st.markdown("""
 
 st.markdown("<h2 style='text-align:center;'>KNOW BEFORE YOU GO</h2>", unsafe_allow_html=True)
 
-# --- At Home Checklist ---
+# 👇 Aggiungi DA QUI la nuova checklist interattiva (sostituisce l’immagine che dava errore)
+
 st.markdown("""
-### 🏠 At Home: Analyze and Plan
-Use this checklist before your trip:
-""")
+<style>
+.checklist-button {
+    display: inline-block;
+    background-color: #1E1E1E;
+    color: white;
+    border: 2px solid #555;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 8px 0;
+    width: 100%;
+    text-align: center;
+    font-weight: 600;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.checklist-button:hover {
+    background-color: #333;
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("## 🏠 At Home: Analyze and Plan")
 
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    if st.button("🧭 Terrain dangers"):
+    if st.button("🧭 Terrain dangers", key="terrain_btn"):
         st.session_state.page = "terrain"
-    if st.button("🌩️ Weather"):
+
+    if st.button("🌩️ Weather", key="weather_btn"):
         st.session_state.page = "weather"
-    if st.button("🗺️ Route study"):
+
+    if st.button("🗺️ Route Study", key="route_btn"):
         st.session_state.page = "route"
-    if st.button("💪 Capacities"):
+
+    if st.button("💪 Capacities", key="cap_btn"):
         st.session_state.page = "capacities"
-    if st.button("⛏️ Equipment"):
+
+    if st.button("⛏️ Equipment", key="equip_btn"):
         st.session_state.page = "equipment"
-    if st.button("🧠 Problems and Solutions"):
+
+    if st.button("🧠 Possible problems & solutions", key="prob_btn"):
         st.session_state.page = "problems"
 
 with col2:
-    st.image("Screenshot 2025-05-15 alle 09.39.29.png", use_column_width=True)
+    st.markdown("""
+    <div class='checklist-button'>🧭 Terrain dangers</div>
+    <div class='checklist-button'>🌩️ Weather</div>
+    <div class='checklist-button'>🗺️ Route Study</div>
+    <div class='checklist-button'>💪 Capacities</div>
+    <div class='checklist-button'>⛏️ Equipment</div>
+    <div class='checklist-button'>🧠 Possible problems & solutions</div>
+    """, unsafe_allow_html=True)
 
 st.markdown("---")
-st.markdown("If you're not ready: ❌ **Change the activity or prepare yourself better**")
+st.markdown("❌ **Change the activity or prepare yourself better**")
+
+
 st.markdown("---")
 
 if "page" in st.session_state:
