@@ -37,7 +37,7 @@ st.markdown("""
 
 st.markdown("<h2 style='text-align:center;'>KNOW BEFORE YOU GO</h2>", unsafe_allow_html=True)
 
-location = st.text_input("\U0001F4CD Search location", placeholder="e.g. Cortina d'Ampezzo, Italy")
+location = st.selectbox("📍 Select location", ["Cervinia", "Bormio", "Cortina"])
 
 if "page" not in st.session_state:
     st.session_state.page = "checklist"
@@ -95,6 +95,54 @@ elif st.session_state.page == "terrain":
     Understand the terrain risks including avalanche-prone slopes, cliffs, cornices, and crevasses. 
     Use official avalanche bulletins and terrain classification tools to plan safely.
     """)
+    import folium
+    from streamlit_folium import st_folium
+
+    coords_map = {
+        "Cervinia": [45.936, 7.627],
+        "Bormio": [46.467, 10.375],
+        "Cortina": [46.538, 12.135]
+    }
+    center = coords_map.get(location, [45.9, 7.6])
+
+    m = folium.Map(location=center, zoom_start=13, tiles='OpenStreetMap')
+    folium.Marker(center, tooltip="Selected Area").add_to(m)
+
+    # Simulated refuge marker
+    folium.Marker([center[0]+0.005, center[1]-0.005], icon=folium.Icon(color='green', icon='info-sign'), tooltip="Mountain Hut").add_to(m)
+
+    # Simulated trail
+    folium.PolyLine(
+        locations=[center, [center[0]+0.006, center[1]+0.002], [center[0]+0.01, center[1]+0.004]],
+        color="blue",
+        weight=4,
+        opacity=0.6,
+        tooltip="Suggested Ski Route"
+    ).add_to(m)
+
+    # Simulated terrain zones (fake polygons)
+    folium.Circle(center, radius=1000, color="red", fill=True, fill_opacity=0.3, tooltip="High Risk Zone").add_to(m)
+    folium.Circle([center[0]+0.01, center[1]+0.01], radius=800, color="orange", fill=True, fill_opacity=0.2, tooltip="Moderate Risk").add_to(m)
+
+    st.markdown("#### Terrain Risk Map")
+    st_folium(m, width=700, height=450)
+
+    try:
+    df = load_dataset()
+
+    # GPX Track Integration
+    import gpxpy
+    gpx_file_path = f"data/{location.lower()}.gpx"
+    try:
+        with open(gpx_file_path, 'r') as gpx_file:
+            gpx = gpxpy.parse(gpx_file)
+            for track in gpx.tracks:
+                for segment in track.segments:
+                    points = [(point.latitude, point.longitude) for point in segment.points]
+                    folium.PolyLine(points, color="cyan", weight=3.5, tooltip="GPX Route").add_to(m)
+    except Exception as e:
+        st.warning(f"No GPX file found for {location} ({e})")
+        st.warning("Dataset not found.")
 
 elif st.session_state.page == "weather":
     st.header("🌩️ Weather Conditions")
@@ -109,6 +157,10 @@ elif st.session_state.page == "route":
     Plan your route carefully with maps, GPS tracks, and escape alternatives. 
     Identify key points: ascents, descents, shelters, crossings, and known hazards.
     """)
+    try:
+        st.dataframe(df[(df["Location"] == location) & (df["Category"] == "route")])
+    except:
+        st.warning("Dataset not found.")
 
 elif st.session_state.page == "capacities":
     st.header("💪 Group Capacities")
@@ -116,6 +168,10 @@ elif st.session_state.page == "capacities":
     Assess physical and technical skills of your team: fitness level, snow skills, experience, group dynamics. 
     Adapt the objective to the weakest member.
     """)
+    try:
+        st.dataframe(df[(df["Location"] == location) & (df["Category"] == "capacities")])
+    except:
+        st.warning("Dataset not found.")
 
 elif st.session_state.page == "equipment":
     st.header("⛏️ Equipment Check")
@@ -123,6 +179,10 @@ elif st.session_state.page == "equipment":
     Bring avalanche safety gear (beacon, shovel, probe), navigation tools (map, compass, GPS), emergency kit, layers, crampons if needed. 
     Test everything the night before.
     """)
+    try:
+        st.dataframe(df[(df["Location"] == location) & (df["Category"] == "equipment")])
+    except:
+        st.warning("Dataset not found.")
 
 elif st.session_state.page == "problems":
     st.header("🧠 Possible Problems & Solutions")
@@ -130,6 +190,10 @@ elif st.session_state.page == "problems":
     Identify potential problems: injuries, whiteouts, avalanches, delays, fatigue. 
     Have backup plans, share emergency numbers, and set time limits.
     """)
+    try:
+        st.dataframe(df[(df["Location"] == location) & (df["Category"] == "problems")])
+    except:
+        st.warning("Dataset not found.")
 
 st.markdown("---")
 if st.session_state.page != "checklist":
