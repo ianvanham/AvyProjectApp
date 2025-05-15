@@ -37,85 +37,106 @@ st.markdown("""
 
 st.markdown("<h2 style='text-align:center;'>KNOW BEFORE YOU GO</h2>", unsafe_allow_html=True)
 
-# Campo posizione subito dopo il titolo
 location = st.text_input("\U0001F4CD Search location", placeholder="e.g. Cortina d'Ampezzo, Italy")
 
-# --- At Home Checklist (2 colonne simmetriche con bottoni quadrati) ---
-st.markdown("""
-<style>
-.square-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #1E1E1E;
-    color: white;
-    border: 2px solid #555;
-    border-radius: 12px;
-    height: 100px;
-    font-weight: bold;
-    font-size: 18px;
-    margin: 10px;
-    width: 100%;
-    transition: background-color 0.2s ease;
-}
-.square-button:hover {
-    background-color: #333;
-}
-</style>
-""", unsafe_allow_html=True)
+if "page" not in st.session_state:
+    st.session_state.page = "checklist"
 
-st.markdown("## \U0001F3E0 At Home: Analyze and Plan")
+if st.session_state.page == "checklist":
+    st.markdown("""
+    <style>
+    .square-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #1E1E1E;
+        color: white;
+        border: 2px solid #555;
+        border-radius: 12px;
+        height: 100px;
+        font-weight: bold;
+        font-size: 18px;
+        margin: 10px;
+        width: 100%;
+        transition: background-color 0.2s ease;
+    }
+    .square-button:hover {
+        background-color: #333;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-col1, col2 = st.columns(2)
+    st.markdown("## \U0001F3E0 At Home: Analyze and Plan")
 
-with col1:
-    if st.button("\U0001F9ED Terrain\ndangers", key="terrain_btn"):
-        st.session_state.page = "terrain"
-    if st.button("\U0001F5FA️ Route\nStudy", key="route_btn"):
-        st.session_state.page = "route"
-    if st.button("⛏️ Equipment", key="equip_btn"):
-        st.session_state.page = "equipment"
+    col1, col2 = st.columns(2)
 
-with col2:
-    if st.button("\U0001F329️ Weather", key="weather_btn"):
-        st.session_state.page = "weather"
-    if st.button("\U0001F4AA Capacities", key="cap_btn"):
-        st.session_state.page = "capacities"
-    if st.button("\U0001F9E0 Possible\nproblems", key="prob_btn"):
-        st.session_state.page = "problems"
+    with col1:
+        if st.button("\U0001F9ED Terrain\ndangers", key="terrain_btn"):
+            st.session_state.page = "terrain"
+        if st.button("\U0001F5FA\ufe0f Route\nStudy", key="route_btn"):
+            st.session_state.page = "route"
+        if st.button("⛏️ Equipment", key="equip_btn"):
+            st.session_state.page = "equipment"
+
+    with col2:
+        if st.button("\U0001F329\ufe0f Weather", key="weather_btn"):
+            st.session_state.page = "weather"
+        if st.button("\U0001F4AA Capacities", key="cap_btn"):
+            st.session_state.page = "capacities"
+        if st.button("\U0001F9E0 Possible\nproblems", key="prob_btn"):
+            st.session_state.page = "problems"
+
+    st.markdown("---")
+    st.markdown("\u274c **Change the activity or prepare yourself better**")
+
+elif st.session_state.page == "terrain":
+    st.header("🧭 Terrain Dangers")
+    st.write("""
+    Understand the terrain risks including avalanche-prone slopes, cliffs, cornices, and crevasses. 
+    Use official avalanche bulletins and terrain classification tools to plan safely.
+    """)
+
+elif st.session_state.page == "weather":
+    st.header("🌩️ Weather Conditions")
+    st.write("""
+    Monitor weather forecasts for wind, precipitation, visibility, and storms. 
+    Sudden changes can drastically alter safety. Use reliable sources and consider elevation-based variations.
+    """)
+
+elif st.session_state.page == "route":
+    st.header("🗺️ Route Study")
+    st.write("""
+    Plan your route carefully with maps, GPS tracks, and escape alternatives. 
+    Identify key points: ascents, descents, shelters, crossings, and known hazards.
+    """)
+
+elif st.session_state.page == "capacities":
+    st.header("💪 Group Capacities")
+    st.write("""
+    Assess physical and technical skills of your team: fitness level, snow skills, experience, group dynamics. 
+    Adapt the objective to the weakest member.
+    """)
+
+elif st.session_state.page == "equipment":
+    st.header("⛏️ Equipment Check")
+    st.write("""
+    Bring avalanche safety gear (beacon, shovel, probe), navigation tools (map, compass, GPS), emergency kit, layers, crampons if needed. 
+    Test everything the night before.
+    """)
+
+elif st.session_state.page == "problems":
+    st.header("🧠 Possible Problems & Solutions")
+    st.write("""
+    Identify potential problems: injuries, whiteouts, avalanches, delays, fatigue. 
+    Have backup plans, share emergency numbers, and set time limits.
+    """)
 
 st.markdown("---")
-st.markdown("\u274c **Change the activity or prepare yourself better**")
+if st.session_state.page != "checklist":
+    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
 
-# --- Weather Section ---
-weather_icons = {
-    "clear": "\u2600\ufe0f",
-    "cloud": "\u2601\ufe0f",
-    "rain": "\ud83c\udf27\ufe0f",
-    "snow": "\u2744\ufe0f",
-    "fog": "\ud83c\udf2b\ufe0f",
-}
-
-weathercode_map = {
-    0: "clear", 1: "clear", 2: "clear",
-    3: "cloud", 45: "fog", 48: "fog",
-    51: "rain", 53: "rain", 55: "rain", 61: "rain", 63: "rain", 65: "rain", 80: "rain",
-    71: "snow", 73: "snow", 75: "snow", 85: "snow", 86: "snow"
-}
-
-def get_icon(code):
-    condition = weathercode_map.get(code, "cloud")
-    return weather_icons.get(condition, "\ud83c\udf21\ufe0f")
-
-def risk_badge(level):
-    if level <= 2:
-        return "<span class='risk-badge risk-low'>Low</span>"
-    elif level == 3:
-        return "<span class='risk-badge risk-medium'>Medium</span>"
-    else:
-        return "<span class='risk-badge risk-high'>High</span>"
-
-if location:
+# --- Weather Section Only for Weather Page ---
+if st.session_state.page == "weather" and location:
     geo_url = f"https://api.geoapify.com/v1/geocode/search?text={location}&apiKey={GEOAPIFY_API_KEY}"
     geo_response = requests.get(geo_url).json()
 
@@ -128,11 +149,38 @@ if location:
         forecast_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max,weathercode&timezone=auto"
         response = requests.get(forecast_url).json()
 
+        weather_icons = {
+            "clear": "☀️",
+            "cloud": "☁️",
+            "rain": "🌧️",
+            "snow": "❄️",
+            "fog": "🌫️",
+        }
+
+        weathercode_map = {
+            0: "clear", 1: "clear", 2: "clear",
+            3: "cloud", 45: "fog", 48: "fog",
+            51: "rain", 53: "rain", 55: "rain", 61: "rain", 63: "rain", 65: "rain", 80: "rain",
+            71: "snow", 73: "snow", 75: "snow", 85: "snow", 86: "snow"
+        }
+
+        def get_icon(code):
+            condition = weathercode_map.get(code, "cloud")
+            return weather_icons.get(condition, "🌡️")
+
+        def risk_badge(level):
+            if level <= 2:
+                return "<span class='risk-badge risk-low'>Low</span>"
+            elif level == 3:
+                return "<span class='risk-badge risk-medium'>Medium</span>"
+            else:
+                return "<span class='risk-badge risk-high'>High</span>"
+
         if "current_weather" in response and "daily" in response:
             weather = response["current_weather"]
             daily = response["daily"]
 
-            avalanche_risk = 2  # static for now
+            avalanche_risk = 2
 
             st.markdown("<div class='section-title'>Live Weather Now</div>", unsafe_allow_html=True)
             st.markdown(f"""
