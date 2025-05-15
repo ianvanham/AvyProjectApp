@@ -188,101 +188,10 @@ elif st.session_state.page == "weather":
     Weather determines timing, exposure, and safe windows.
     """)
     st.markdown(
-    "<div style='height:200px;background:#333;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;'>"
-    "🌡️ Temp: {}°C, 💨 Wind: {} km/h"
-    "</div>".format(weather.get("temperature", "-"), weather.get("windspeed", "-")),
-    unsafe_allow_html=True
-)
-    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
-
-elif st.session_state.page == "route":
-    import gpxpy
-    import folium
-    from streamlit_folium import st_folium
-    import plotly.graph_objects as go
-
-    st.markdown(f"## 🗺️ Route Study – {location}")
-    st.markdown("""
-    Visualize your path: start, key transitions, exposure zones, and safe exits.
-    Study the slope gradients, altimetry, and time estimates.
-    """)
-
-    gpx_path = f"data/{location.lower()}.gpx"
-    try:
-        with open(gpx_path, 'r') as gpx_file:
-            gpx = gpxpy.parse(gpx_file)
-            m = folium.Map(location=[lat, lon], zoom_start=13, tiles="OpenStreetMap")
-            elevation_data = []
-            distance_data = []
-            total_distance = 0.0
-
-            for track in gpx.tracks:
-                for segment in track.segments:
-                    points = [(p.latitude, p.longitude) for p in segment.points]
-                    folium.PolyLine(points, color="cyan", weight=3.5).add_to(m)
-
-                    prev_point = None
-                    for point in segment.points:
-                        if prev_point:
-                            total_distance += point.distance_2d(prev_point) / 1000.0  # in km
-                        elevation_data.append(point.elevation)
-                        distance_data.append(total_distance)
-                        prev_point = point
-
-            st_data = st_folium(m, width=700, height=450)
-
-            if elevation_data and distance_data:
-                fig = go.Figure()
-                fig.add_trace(go.Scatter(x=distance_data, y=elevation_data, mode='lines', fill='tozeroy'))
-                fig.update_layout(
-                    title="Elevation Profile",
-                    xaxis_title="Distance (km)",
-                    yaxis_title="Elevation (m)",
-                    template="plotly_dark",
-                    height=300
-                )
-                st.plotly_chart(fig)
-
-    except Exception as e:
-        st.error(f"GPX file not found or error parsing it: {e}")
-
-    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
-
-elif st.session_state.page == "capacities":
-    st.markdown(f"## 💪 Group Capacities – {location}")
-    st.markdown("""
-    Evaluate skills, fitness, and experience level of each participant.
-    Plan the objective based on the least experienced member.
-    """)
-    st.markdown("<div style='height:150px;background:#202020;border-radius:12px;color:white;display:flex;align-items:center;justify-content:center;'>3 skiers: Intermediate | 1 skier: Advanced | 1 beginner (snowshoe)</div>", unsafe_allow_html=True)
-    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
-
-elif st.session_state.page == "equipment":
-    st.markdown(f"## ⛏️ Equipment – {location}")
-    st.markdown("""
-    Verify that every team member carries transceiver, shovel, probe, helmet, map and radio.
-    Optional: crampons, skins, bivy, airbag depending on route.
-    """)
-    st.markdown("<div style='height:200px;background:#252525;border-radius:12px;color:white;display:flex;align-items:center;justify-content:center;'>✔️ Beacon ✔️ Probe ✔️ Shovel ✔️ Radio ❌ Crampons</div>", unsafe_allow_html=True)
-    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
-
-elif st.session_state.page == "problems":
-    st.markdown(f"## 🧠 Possible Problems – {location}")
-    st.markdown("""
-    Think ahead: delayed return, fog, injuries, missing gear, exhaustion.
-    Create backups and define checkpoints for go/no-go.
-    """)
-    st.markdown("<div style='height:180px;background:#2a2a2a;border-radius:12px;color:white;display:flex;align-items:center;justify-content:center;'>Plan B: shortcut at km 4. Emergency hut open (code 5209)</div>", unsafe_allow_html=True)
-
-    # Final summary dashboard
-    st.markdown("## 🧾 Summary Dashboard")
-    col1, col2 = st.columns(2)
-    with col1:
-        st.metric("🌡️ Temp", f"{weather.get('temperature', '-')}°C")
-        st.metric("💨 Wind", f"{weather.get('windspeed', '-')}", "km/h")
-    with col2:
-        st.metric("📍 Location", location)
-        st.metric("🗺️ GPX Loaded", "Yes" if location else "No")
-
+        "<div style='height:200px;background:#333;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;'>"
+        "🌡️ Temp: {}°C, 💨 Wind: {} km/h"
+        "</div>".format(weather.get("temperature", "-"), weather.get("windspeed", "-")),
+        unsafe_allow_html=True
+    )
     st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
 
