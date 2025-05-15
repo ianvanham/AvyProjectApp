@@ -128,20 +128,33 @@ elif st.session_state.page == "terrain":
     st_folium(m, width=700, height=450)
 
     try:
-    df = load_dataset()
+        df = load_dataset()
+
+        # GPX Track Integration
+        import gpxpy
+        gpx_file_path = f"data/{location.lower()}.gpx"
+        try:
+            with open(gpx_file_path, 'r') as gpx_file:
+                gpx = gpxpy.parse(gpx_file)
+                for track in gpx.tracks:
+                    for segment in track.segments:
+                        points = [(point.latitude, point.longitude) for point in segment.points]
+                        folium.PolyLine(points, color="cyan", weight=3.5, tooltip="GPX Route").add_to(m)
+        except Exception as e:
+            st.warning(f"No GPX file found for {location} ({e})")
 
     # GPX Track Integration
     import gpxpy
     gpx_file_path = f"data/{location.lower()}.gpx"
-    try:
+        try:
         with open(gpx_file_path, 'r') as gpx_file:
             gpx = gpxpy.parse(gpx_file)
             for track in gpx.tracks:
                 for segment in track.segments:
                     points = [(point.latitude, point.longitude) for point in segment.points]
                     folium.PolyLine(points, color="cyan", weight=3.5, tooltip="GPX Route").add_to(m)
-    except Exception as e:
-        st.warning(f"No GPX file found for {location} ({e})")
+        except Exception as e:
+        st.warning(f"No GPX file found for {location} ({e})")")
         st.warning("Dataset not found.")
 
 elif st.session_state.page == "weather":
