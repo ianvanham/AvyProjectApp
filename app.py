@@ -58,7 +58,7 @@ body {
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h2 style='text-align:center;'>KNOW BEFORE YOU GO</h2>", unsafe_allow_html=True)
+st.markdown(f"<h2 style='text-align:center;'>📍 {location} — KNOW BEFORE YOU GO</h2>", unsafe_allow_html=True)
 
 location = st.selectbox("📍 Select location", ["Cervinia", "Bormio", "Cortina"])
 
@@ -74,44 +74,101 @@ elif st.session_state.page == "checklist":
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: #1E1E1E;
+        background: linear-gradient(145deg, #1c1c1c, #101010);
         color: white;
-        border: 2px solid #555;
+        border: 1px solid #333;
         border-radius: 12px;
         height: 100px;
-        font-weight: bold;
-        font-size: 18px;
-        margin: 10px;
+        font-weight: 600;
+        font-size: 16px;
+        margin: 8px;
         width: 100%;
-        transition: background-color 0.2s ease;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+        transition: background 0.2s;
     }
     .square-button:hover {
-        background-color: #333;
+        background: #222;
     }
     </style>
     """, unsafe_allow_html=True)
 
     st.markdown("## 🏠 At Home: Analyze and Plan")
 
-    col1, col2 = st.columns(2)
+    cols = st.columns(2)
 
-    with col1:
-        if st.button("🧭 Terrain\ndangers", key="terrain_btn"):
-            st.session_state.page = "terrain"
-        if st.button("🗺️ Route\nStudy", key="route_btn"):
-            st.session_state.page = "route"
-        if st.button("⛏️ Equipment", key="equip_btn"):
-            st.session_state.page = "equipment"
+    buttons = [
+        ("🧭 Terrain
+dangers", "terrain"),
+        ("🌩️ Weather", "weather"),
+        ("🗺️ Route
+Study", "route"),
+        ("💪 Capacities", "capacities"),
+        ("⛏️ Equipment", "equipment"),
+        ("🧠 Possible
+problems", "problems")
+    ]
 
-    with col2:
-        if st.button("🌩️ Weather", key="weather_btn"):
-            st.session_state.page = "weather"
-        if st.button("💪 Capacities", key="cap_btn"):
-            st.session_state.page = "capacities"
-        if st.button("🧠 Possible\nproblems", key="prob_btn"):
-            st.session_state.page = "problems"
+    for i, (label, key) in enumerate(buttons):
+        with cols[i % 2]:
+            if st.button(label, key=f"{key}_btn"):
+                st.session_state.page = key
 
     st.markdown("---")
     st.markdown("❌ **Change the activity or prepare yourself better**")
 
-# ready to continue with page-specific sections
+# --- Begin page-specific sections ---
+
+if st.session_state.page == "terrain":
+    st.markdown(f"## 🧭 Terrain Dangers – {location}")
+    st.markdown("""
+    Understand avalanche-prone zones, cliffs, cornices, and glacier features.
+    Use terrain classifications to decide safe approach lines.
+    """)
+    st.markdown("<div style='height:300px;background:#222;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;'>[Terrain Map Placeholder]</div>", unsafe_allow_html=True)
+    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
+
+elif st.session_state.page == "weather":
+    st.markdown(f"## 🌩️ Weather – {location}")
+    st.markdown("""
+    Check temperature swings, wind speed, and storm alerts.
+    Weather determines timing, exposure, and safe windows.
+    """)
+    st.markdown("<div style='height:200px;background:#333;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;'>[Live Weather Module]</div>", unsafe_allow_html=True)
+    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
+
+elif st.session_state.page == "route":
+    st.markdown(f"## 🗺️ Route Study – {location}")
+    st.markdown("""
+    Visualize your path: start, key transitions, exposure zones, and safe exits.
+    Study the slope gradients, altimetry, and time estimates.
+    """)
+    st.markdown("<div style='height:250px;background:#1a1a1a;border-radius:12px;color:white;display:flex;align-items:center;justify-content:center;'>[Route Analysis Tool]</div>", unsafe_allow_html=True)
+    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
+
+elif st.session_state.page == "capacities":
+    st.markdown(f"## 💪 Group Capacities – {location}")
+    st.markdown("""
+    Evaluate skills, fitness, and experience level of each participant.
+    Plan the objective based on the least experienced member.
+    """)
+    st.markdown("<div style='height:150px;background:#202020;border-radius:12px;color:white;display:flex;align-items:center;justify-content:center;'>[Capacity Checklist]</div>", unsafe_allow_html=True)
+    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
+
+elif st.session_state.page == "equipment":
+    st.markdown(f"## ⛏️ Equipment – {location}")
+    st.markdown("""
+    Verify that every team member carries transceiver, shovel, probe, helmet, map and radio.
+    Optional: crampons, skins, bivy, airbag depending on route.
+    """)
+    st.markdown("<div style='height:200px;background:#252525;border-radius:12px;color:white;display:flex;align-items:center;justify-content:center;'>[Equipment Overview]</div>", unsafe_allow_html=True)
+    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
+
+elif st.session_state.page == "problems":
+    st.markdown(f"## 🧠 Possible Problems – {location}")
+    st.markdown("""
+    Think ahead: delayed return, fog, injuries, missing gear, exhaustion.
+    Create backups and define checkpoints for go/no-go.
+    """)
+    st.markdown("<div style='height:180px;background:#2a2a2a;border-radius:12px;color:white;display:flex;align-items:center;justify-content:center;'>[Scenario Planner]</div>", unsafe_allow_html=True)
+    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
+
