@@ -130,7 +130,6 @@ elif st.session_state.page == "terrain":
     try:
         df = load_dataset()
 
-        # GPX Track Integration
         import gpxpy
         gpx_file_path = f"data/{location.lower()}.gpx"
         try:
@@ -143,74 +142,7 @@ elif st.session_state.page == "terrain":
         except Exception as e:
             st.warning(f"No GPX file found for {location} ({e})")
 
-    # GPX Track Integration
-    import gpxpy
-    gpx_file_path = f"data/{location.lower()}.gpx"
-        try:
-        with open(gpx_file_path, 'r') as gpx_file:
-            gpx = gpxpy.parse(gpx_file)
-            for track in gpx.tracks:
-                for segment in track.segments:
-                    points = [(point.latitude, point.longitude) for point in segment.points]
-                    folium.PolyLine(points, color="cyan", weight=3.5, tooltip="GPX Route").add_to(m)
-        except Exception as e:
-        st.warning(f"No GPX file found for {location} ({e})")")
-        st.warning("Dataset not found.")
-
-elif st.session_state.page == "weather":
-    st.header("🌩️ Weather Conditions")
-    st.write("""
-    Monitor weather forecasts for wind, precipitation, visibility, and storms. 
-    Sudden changes can drastically alter safety. Use reliable sources and consider elevation-based variations.
-    """)
-
-elif st.session_state.page == "route":
-    st.header("🗺️ Route Study")
-    st.write("""
-    Plan your route carefully with maps, GPS tracks, and escape alternatives. 
-    Identify key points: ascents, descents, shelters, crossings, and known hazards.
-    """)
-    try:
-        st.dataframe(df[(df["Location"] == location) & (df["Category"] == "route")])
-    except:
-        st.warning("Dataset not found.")
-
-elif st.session_state.page == "capacities":
-    st.header("💪 Group Capacities")
-    st.write("""
-    Assess physical and technical skills of your team: fitness level, snow skills, experience, group dynamics. 
-    Adapt the objective to the weakest member.
-    """)
-    try:
-        st.dataframe(df[(df["Location"] == location) & (df["Category"] == "capacities")])
-    except:
-        st.warning("Dataset not found.")
-
-elif st.session_state.page == "equipment":
-    st.header("⛏️ Equipment Check")
-    st.write("""
-    Bring avalanche safety gear (beacon, shovel, probe), navigation tools (map, compass, GPS), emergency kit, layers, crampons if needed. 
-    Test everything the night before.
-    """)
-    try:
-        st.dataframe(df[(df["Location"] == location) & (df["Category"] == "equipment")])
-    except:
-        st.warning("Dataset not found.")
-
-elif st.session_state.page == "problems":
-    st.header("🧠 Possible Problems & Solutions")
-    st.write("""
-    Identify potential problems: injuries, whiteouts, avalanches, delays, fatigue. 
-    Have backup plans, share emergency numbers, and set time limits.
-    """)
-    try:
-        st.dataframe(df[(df["Location"] == location) & (df["Category"] == "problems")])
-    except:
-        st.warning("Dataset not found.")
-
-st.markdown("---")
-if st.session_state.page != "checklist":
-    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
+    
 
 # --- Weather Section Only for Weather Page ---
 if st.session_state.page == "weather" and location:
