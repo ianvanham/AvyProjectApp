@@ -120,7 +120,7 @@ elif st.session_state.page == "checklist":
 
     st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
 
-
+
     st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
 
 
@@ -211,3 +211,4 @@ if st.session_state.page == "weather" and location:
 
         else:
             st.info("Weather data not available.")
+
