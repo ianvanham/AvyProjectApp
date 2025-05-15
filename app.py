@@ -1,4 +1,3 @@
-
 import streamlit as st
 from dotenv import load_dotenv
 import os
@@ -14,6 +13,7 @@ OPEN_METEO_API_KEY = os.getenv("OPEN_METEO_API_KEY")
 
 st.set_page_config(page_title="KNOW BEFORE YOU GO", layout="centered")
 
+# Custom CSS for dark theme and UI styling
 st.markdown("""
 <style>
     body {background-color: #121212; color: white;}
@@ -38,6 +38,58 @@ st.markdown("""
 
 st.markdown("<h2 style='text-align:center;'>KNOW BEFORE YOU GO</h2>", unsafe_allow_html=True)
 
+# --- At Home Checklist ---
+st.markdown("""
+### 🏠 At Home: Analyze and Plan
+Use this checklist before your trip:
+""")
+
+col1, col2 = st.columns([1, 1])
+
+with col1:
+    if st.button("🧭 Terrain dangers"):
+        st.session_state.page = "terrain"
+    if st.button("🌩️ Weather"):
+        st.session_state.page = "weather"
+    if st.button("🗺️ Route study"):
+        st.session_state.page = "route"
+    if st.button("💪 Capacities"):
+        st.session_state.page = "capacities"
+    if st.button("⛏️ Equipment"):
+        st.session_state.page = "equipment"
+    if st.button("🧠 Problems and Solutions"):
+        st.session_state.page = "problems"
+
+with col2:
+    st.image("Screenshot 2025-05-15 alle 09.39.29.png", use_column_width=True)
+
+st.markdown("---")
+st.markdown("If you're not ready: ❌ **Change the activity or prepare yourself better**")
+st.markdown("---")
+
+if "page" in st.session_state:
+    if st.session_state.page == "terrain":
+        st.header("🧭 Terrain Dangers")
+        st.write("Evaluate terrain-related hazards such as avalanche-prone slopes, crevasses or icy ridges.")
+    elif st.session_state.page == "weather":
+        st.header("🌩️ Weather")
+        st.write("Check weather forecasts, wind conditions and rapid changes.")
+    elif st.session_state.page == "route":
+        st.header("🗺️ Route Study")
+        st.write("Review GPS tracks, key waypoints and elevation changes.")
+    elif st.session_state.page == "capacities":
+        st.header("💪 Capacities")
+        st.write("Consider the physical condition and experience level of your group.")
+    elif st.session_state.page == "equipment":
+        st.header("⛏️ Equipment")
+        st.write("Ensure you have avalanche gear, navigation tools, and proper clothing.")
+    elif st.session_state.page == "problems":
+        st.header("🧠 Problems and Solutions")
+        st.write("Plan for possible incidents and emergency exits.")
+
+    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "home"}))
+
+# --- Weather Section ---
 location = st.text_input("Search location")
 
 weather_icons = {
@@ -99,26 +151,12 @@ if location:
                 </div>
             """, unsafe_allow_html=True)
 
-            # New Avalanche Bulletin Plugin
             st.markdown("<div class='section-title'>Official Avalanche Bulletin</div>", unsafe_allow_html=True)
             components.iframe("https://bollettini.aineva.it/bulletin/latest", height=600, scrolling=True)
 
             st.subheader("5-Day Weather Forecast")
 
-            table_html = '''
-<table>
-<thead>
-<tr>
-<th>Date</th>
-<th>Icon</th>
-<th>Max</th>
-<th>Min</th>
-<th>Wind</th>
-<th>Precip.</th>
-</tr>
-</thead>
-<tbody>
-'''
+            table_html = '''<table><thead><tr><th>Date</th><th>Icon</th><th>Max</th><th>Min</th><th>Wind</th><th>Precip.</th></tr></thead><tbody>'''
 
             for i in range(5):
                 date = datetime.strptime(daily["time"][i], "%Y-%m-%d").strftime("%a %d %b")
@@ -128,19 +166,9 @@ if location:
                 wind = f"{daily['windspeed_10m_max'][i]} km/h"
                 precip = f"<span class='precip-badge'>{daily['precipitation_sum'][i]} mm</span>"
 
-                table_html += f'''
-<tr>
-<td>{date}</td>
-<td>{icon}</td>
-<td>{tmax}</td>
-<td>{tmin}</td>
-<td>{wind}</td>
-<td>{precip}</td>
-</tr>
-'''
+                table_html += f'''<tr><td>{date}</td><td>{icon}</td><td>{tmax}</td><td>{tmin}</td><td>{wind}</td><td>{precip}</td></tr>'''
 
             table_html += "</tbody></table>"
-
             st.markdown(table_html, unsafe_allow_html=True)
 
         else:
