@@ -13,7 +13,6 @@ OPEN_METEO_API_KEY = os.getenv("OPEN_METEO_API_KEY")
 
 st.set_page_config(page_title="KNOW BEFORE YOU GO", layout="centered")
 
-# Custom CSS for dark theme and UI styling
 st.markdown("""
 <style>
     body {background-color: #121212; color: white;}
@@ -38,9 +37,10 @@ st.markdown("""
 
 st.markdown("<h2 style='text-align:center;'>KNOW BEFORE YOU GO</h2>", unsafe_allow_html=True)
 
-# 👇 Aggiungi DA QUI la nuova checklist interattiva (sostituisce l’immagine che dava errore)
+# Campo posizione subito dopo il titolo
+location = st.text_input("\U0001F4CD Search location", placeholder="e.g. Cortina d'Ampezzo, Italy")
 
-# Stile per i bottoni quadrati su due colonne
+# --- At Home Checklist (2 colonne simmetriche con bottoni quadrati) ---
 st.markdown("""
 <style>
 .square-button {
@@ -64,69 +64,36 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("## 🏠 At Home: Analyze and Plan")
+st.markdown("## \U0001F3E0 At Home: Analyze and Plan")
 
-# Due colonne simmetriche
 col1, col2 = st.columns(2)
 
-# Prima colonna con 3 bottoni
 with col1:
-    if st.button("🧭 Terrain\ndangers", key="terrain_btn"):
+    if st.button("\U0001F9ED Terrain\ndangers", key="terrain_btn"):
         st.session_state.page = "terrain"
-    if st.button("🗺️ Route\nStudy", key="route_btn"):
+    if st.button("\U0001F5FA️ Route\nStudy", key="route_btn"):
         st.session_state.page = "route"
     if st.button("⛏️ Equipment", key="equip_btn"):
         st.session_state.page = "equipment"
 
-# Seconda colonna con altri 3 bottoni
 with col2:
-    if st.button("🌩️ Weather", key="weather_btn"):
+    if st.button("\U0001F329️ Weather", key="weather_btn"):
         st.session_state.page = "weather"
-    if st.button("💪 Capacities", key="cap_btn"):
+    if st.button("\U0001F4AA Capacities", key="cap_btn"):
         st.session_state.page = "capacities"
-    if st.button("🧠 Possible\nproblems", key="prob_btn"):
+    if st.button("\U0001F9E0 Possible\nproblems", key="prob_btn"):
         st.session_state.page = "problems"
 
-# Messaggio finale
 st.markdown("---")
-st.markdown("❌ **Change the activity or prepare yourself better**")
-
-
-
-
-st.markdown("---")
-
-if "page" in st.session_state:
-    if st.session_state.page == "terrain":
-        st.header("🧭 Terrain Dangers")
-        st.write("Evaluate terrain-related hazards such as avalanche-prone slopes, crevasses or icy ridges.")
-    elif st.session_state.page == "weather":
-        st.header("🌩️ Weather")
-        st.write("Check weather forecasts, wind conditions and rapid changes.")
-    elif st.session_state.page == "route":
-        st.header("🗺️ Route Study")
-        st.write("Review GPS tracks, key waypoints and elevation changes.")
-    elif st.session_state.page == "capacities":
-        st.header("💪 Capacities")
-        st.write("Consider the physical condition and experience level of your group.")
-    elif st.session_state.page == "equipment":
-        st.header("⛏️ Equipment")
-        st.write("Ensure you have avalanche gear, navigation tools, and proper clothing.")
-    elif st.session_state.page == "problems":
-        st.header("🧠 Problems and Solutions")
-        st.write("Plan for possible incidents and emergency exits.")
-
-    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "home"}))
+st.markdown("\u274c **Change the activity or prepare yourself better**")
 
 # --- Weather Section ---
-location = st.text_input("Search location")
-
 weather_icons = {
-    "clear": "☀️",
-    "cloud": "☁️",
-    "rain": "🌧️",
-    "snow": "❄️",
-    "fog": "🌫️",
+    "clear": "\u2600\ufe0f",
+    "cloud": "\u2601\ufe0f",
+    "rain": "\ud83c\udf27\ufe0f",
+    "snow": "\u2744\ufe0f",
+    "fog": "\ud83c\udf2b\ufe0f",
 }
 
 weathercode_map = {
@@ -138,7 +105,7 @@ weathercode_map = {
 
 def get_icon(code):
     condition = weathercode_map.get(code, "cloud")
-    return weather_icons.get(condition, "🌡️")
+    return weather_icons.get(condition, "\ud83c\udf21\ufe0f")
 
 def risk_badge(level):
     if level <= 2:
@@ -202,4 +169,3 @@ if location:
 
         else:
             st.info("Weather data not available.")
-
