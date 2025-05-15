@@ -15,23 +15,46 @@ st.set_page_config(page_title="KNOW BEFORE YOU GO", layout="centered")
 
 st.markdown("""
 <style>
-    body {background-color: #121212; color: white;}
-    .temp-now {font-size: 64px; font-weight: bold; color: #FFFFFF;}
-    .section-title {font-size: 24px; font-weight: bold; margin-top: 20px;}
-    .live-box {display: flex; background-color: #1E1E1E; padding: 20px; border-radius: 12px; margin-bottom: 20px;}
-    .left {flex: 1; text-align: center; font-size: 80px;}
-    .right {flex: 1; text-align: center;}
-    .line {border-top: 1px solid #555; margin: 10px 0;}
-    .info {color: #CCCCCC; font-size: 18px; margin-top: 4px;}
-    .risk-badge {padding: 4px 12px; border-radius: 8px; font-weight: bold; display: inline-block;}
-    .risk-low {background-color: #4CAF50; color: white;}
-    .risk-medium {background-color: #FFC107; color: black;}
-    .risk-high {background-color: #F44336; color: white;}
-    table {width: 100%; border-collapse: collapse;}
-    th, td {padding: 12px; text-align: center; border-bottom: 1px solid #333;}
-    th {background-color: #1E1E1E; color: white;}
-    tr:hover {background-color: #2A2A2A;}
-    .precip-badge {color: #00BFFF; font-weight: bold;}
+:root {
+    --font-size: 16px;
+    --padding: 10px;
+    --color-bg: #121212;
+    --color-card: #1E1E1E;
+    --color-border: #555;
+    --color-text: #FFFFFF;
+    --radius: 12px;
+}
+
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-size: var(--font-size);
+}
+
+.square-button, .live-box, .risk-badge {
+    font-size: 1rem;
+    padding: var(--padding);
+    border-radius: var(--radius);
+}
+
+@media screen and (max-width: 600px) {
+    .square-button {
+        width: 100% !important;
+        margin: 5px auto;
+        font-size: 16px;
+        height: auto;
+    }
+    .live-box {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .left, .right {
+        font-size: 48px !important;
+    }
+    .section-title {
+        font-size: 20px;
+    }
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -211,4 +234,3 @@ if st.session_state.page == "weather" and location:
 
         else:
             st.info("Weather data not available.")
-
