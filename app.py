@@ -97,15 +97,12 @@ elif st.session_state.page == "checklist":
     cols = st.columns(2)
 
     buttons = [
-        ("🧭 Terrain
-dangers", "terrain"),
+        ("🧭 Terrain dangers", "terrain"),
         ("🌩️ Weather", "weather"),
-        ("🗺️ Route
-Study", "route"),
+        ("🗺️ Route Study", "route"),
         ("💪 Capacities", "capacities"),
         ("⛏️ Equipment", "equipment"),
-        ("🧠 Possible
-problems", "problems")
+        ("🧠 Possible problems", "problems")
     ]
 
     for i, (label, key) in enumerate(buttons):
