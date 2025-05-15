@@ -58,7 +58,8 @@ body {
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown(f"<h2 style='text-align:center;'>📍 {location} — KNOW BEFORE YOU GO</h2>", unsafe_allow_html=True)
+if 'location' in locals():
+    st.markdown(f"<h2 style='text-align:center;'>📍 {location} — KNOW BEFORE YOU GO</h2>", unsafe_allow_html=True)
 
 location = st.selectbox("📍 Select location", ["Cervinia", "Bormio", "Cortina"])
 
@@ -130,7 +131,7 @@ elif st.session_state.page == "weather":
     Check temperature swings, wind speed, and storm alerts.
     Weather determines timing, exposure, and safe windows.
     """)
-    st.markdown("<div style='height:200px;background:#333;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;'>[Live Weather Module]</div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:200px;background:#333;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;'>🌡️ Temp: -5°C, 💨 Wind: 30km/h, ☁️ Snowfall: 15cm</div>", unsafe_allow_html=True)
     st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
 
 elif st.session_state.page == "route":
@@ -139,7 +140,7 @@ elif st.session_state.page == "route":
     Visualize your path: start, key transitions, exposure zones, and safe exits.
     Study the slope gradients, altimetry, and time estimates.
     """)
-    st.markdown("<div style='height:250px;background:#1a1a1a;border-radius:12px;color:white;display:flex;align-items:center;justify-content:center;'>[Route Analysis Tool]</div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:250px;background:#1a1a1a;border-radius:12px;color:white;display:flex;align-items:center;justify-content:center;'>Elevation gain: 820m • Max slope: 34° • GPX track loaded</div>", unsafe_allow_html=True)
     st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
 
 elif st.session_state.page == "capacities":
@@ -148,7 +149,7 @@ elif st.session_state.page == "capacities":
     Evaluate skills, fitness, and experience level of each participant.
     Plan the objective based on the least experienced member.
     """)
-    st.markdown("<div style='height:150px;background:#202020;border-radius:12px;color:white;display:flex;align-items:center;justify-content:center;'>[Capacity Checklist]</div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:150px;background:#202020;border-radius:12px;color:white;display:flex;align-items:center;justify-content:center;'>3 skiers: Intermediate | 1 skier: Advanced | 1 beginner (snowshoe)</div>", unsafe_allow_html=True)
     st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
 
 elif st.session_state.page == "equipment":
@@ -157,7 +158,7 @@ elif st.session_state.page == "equipment":
     Verify that every team member carries transceiver, shovel, probe, helmet, map and radio.
     Optional: crampons, skins, bivy, airbag depending on route.
     """)
-    st.markdown("<div style='height:200px;background:#252525;border-radius:12px;color:white;display:flex;align-items:center;justify-content:center;'>[Equipment Overview]</div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:200px;background:#252525;border-radius:12px;color:white;display:flex;align-items:center;justify-content:center;'>✔️ Beacon ✔️ Probe ✔️ Shovel ✔️ Radio ❌ Crampons</div>", unsafe_allow_html=True)
     st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
 
 elif st.session_state.page == "problems":
@@ -166,6 +167,6 @@ elif st.session_state.page == "problems":
     Think ahead: delayed return, fog, injuries, missing gear, exhaustion.
     Create backups and define checkpoints for go/no-go.
     """)
-    st.markdown("<div style='height:180px;background:#2a2a2a;border-radius:12px;color:white;display:flex;align-items:center;justify-content:center;'>[Scenario Planner]</div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:180px;background:#2a2a2a;border-radius:12px;color:white;display:flex;align-items:center;justify-content:center;'>Plan B: shortcut at km 4. Emergency hut open (code 5209)</div>", unsafe_allow_html=True)
     st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
 
