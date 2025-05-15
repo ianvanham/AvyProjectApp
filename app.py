@@ -116,14 +116,70 @@ elif st.session_state.page == "checklist":
 
 # --- Begin page-specific sections ---
 
+# Load coordinates
+location_coords = {
+    "Cervinia": (45.936, 7.627),
+    "Bormio": (46.467, 10.375),
+    "Cortina": (46.538, 12.135)
+}
+
+lat, lon = location_coords.get(location, (45.0, 7.0))
+
+# Fetch weather
+weather = {}
+try:
+    response = requests.get(
+        f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true&timezone=auto"
+    )
+    if response.ok:
+        data = response.json()
+        weather = data.get("current_weather", {})
+except Exception as e:
+    st.warning(f"Weather API error: {e}")
+
 if st.session_state.page == "terrain":
+    import gpxpy
+    import plotly.graph_objects as go
+
     st.markdown(f"## 🧭 Terrain Dangers – {location}")
     st.markdown("""
     Understand avalanche-prone zones, cliffs, cornices, and glacier features.
     Use terrain classifications to decide safe approach lines.
     """)
-    st.markdown("<div style='height:300px;background:#222;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;'>[Terrain Map Placeholder]</div>", unsafe_allow_html=True)
-    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
+
+    gpx_path = f"data/{location.lower()}.gpx"
+    elevation_data = []
+    distance_data = []
+    total_distance = 0.0
+
+    try:
+        with open(gpx_path, 'r') as gpx_file:
+            gpx = gpxpy.parse(gpx_file)
+            prev_point = None
+            for track in gpx.tracks:
+                for segment in track.segments:
+                    for point in segment.points:
+                        if prev_point:
+                            total_distance += point.distance_2d(prev_point) / 1000.0
+                        elevation_data.append(point.elevation)
+                        distance_data.append(total_distance)
+                        prev_point = point
+
+        if elevation_data and distance_data:
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=distance_data, y=elevation_data, mode='lines', fill='tozeroy'))
+            fig.update_layout(
+                title="Terrain Elevation Profile",
+                xaxis_title="Distance (km)",
+                yaxis_title="Elevation (m)",
+                template="plotly_dark",
+                height=300
+            )
+            st.plotly_chart(fig)
+    except Exception as e:
+        st.warning(f"GPX elevation data not loaded: {e}")
+
+    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"})))
 
 elif st.session_state.page == "weather":
     st.markdown(f"## 🌩️ Weather – {location}")
@@ -131,17 +187,64 @@ elif st.session_state.page == "weather":
     Check temperature swings, wind speed, and storm alerts.
     Weather determines timing, exposure, and safe windows.
     """)
-    st.markdown("<div style='height:200px;background:#333;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;'>🌡️ Temp: -5°C, 💨 Wind: 30km/h, ☁️ Snowfall: 15cm</div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:200px;background:#333;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;'>🌡️ Temp: {}°C, 💨 Wind: {} km/h".format(weather.get("temperature", "-"), weather.get("windspeed", "-"))
+    }
+  ]
+}</div>", unsafe_allow_html=True)
     st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
 
 elif st.session_state.page == "route":
+    import gpxpy
+    import folium
+    from streamlit_folium import st_folium
+    import plotly.graph_objects as go
+
     st.markdown(f"## 🗺️ Route Study – {location}")
     st.markdown("""
     Visualize your path: start, key transitions, exposure zones, and safe exits.
     Study the slope gradients, altimetry, and time estimates.
     """)
-    st.markdown("<div style='height:250px;background:#1a1a1a;border-radius:12px;color:white;display:flex;align-items:center;justify-content:center;'>Elevation gain: 820m • Max slope: 34° • GPX track loaded</div>", unsafe_allow_html=True)
-    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
+
+    gpx_path = f"data/{location.lower()}.gpx"
+    try:
+        with open(gpx_path, 'r') as gpx_file:
+            gpx = gpxpy.parse(gpx_file)
+            m = folium.Map(location=[lat, lon], zoom_start=13, tiles="OpenStreetMap")
+            elevation_data = []
+            distance_data = []
+            total_distance = 0.0
+
+            for track in gpx.tracks:
+                for segment in track.segments:
+                    points = [(p.latitude, p.longitude) for p in segment.points]
+                    folium.PolyLine(points, color="cyan", weight=3.5).add_to(m)
+
+                    prev_point = None
+                    for point in segment.points:
+                        if prev_point:
+                            total_distance += point.distance_2d(prev_point) / 1000.0  # in km
+                        elevation_data.append(point.elevation)
+                        distance_data.append(total_distance)
+                        prev_point = point
+
+            st_data = st_folium(m, width=700, height=450)
+
+            if elevation_data and distance_data:
+                fig = go.Figure()
+                fig.add_trace(go.Scatter(x=distance_data, y=elevation_data, mode='lines', fill='tozeroy'))
+                fig.update_layout(
+                    title="Elevation Profile",
+                    xaxis_title="Distance (km)",
+                    yaxis_title="Elevation (m)",
+                    template="plotly_dark",
+                    height=300
+                )
+                st.plotly_chart(fig)
+
+    except Exception as e:
+        st.error(f"GPX file not found or error parsing it: {e}")
+
+    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"})))
 
 elif st.session_state.page == "capacities":
     st.markdown(f"## 💪 Group Capacities – {location}")
