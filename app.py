@@ -91,7 +91,7 @@ elif st.session_state.page == "checklist":
     st.markdown("---")
     st.markdown("\u274c **Change the activity or prepare yourself better**")
 
-
+
     st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
 
     try:
