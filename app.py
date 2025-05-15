@@ -142,6 +142,9 @@ elif st.session_state.page == "terrain":
         except Exception as e:
             st.warning(f"No GPX file found for {location} ({e})")
 
+    except Exception as err:
+        st.error(f"Data loading failed: {err}")
+
     
 
 # --- Weather Section Only for Weather Page ---
