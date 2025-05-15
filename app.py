@@ -42,7 +42,7 @@ location = st.selectbox("📍 Select location", ["Cervinia", "Bormio", "Cortina"
 if "page" not in st.session_state:
     st.session_state.page = "checklist"
 
-if st.session_state.page == "checklist":
+if location and st.session_state.page == "checklist":
     st.markdown("""
     <style>
     .square-button {
