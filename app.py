@@ -244,7 +244,7 @@ elif st.session_state.page == "route":
     except Exception as e:
         st.error(f"GPX file not found or error parsing it: {e}")
 
-    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"})))
+    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
 
 elif st.session_state.page == "capacities":
     st.markdown(f"## 💪 Group Capacities – {location}")
