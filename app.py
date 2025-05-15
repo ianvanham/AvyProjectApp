@@ -282,5 +282,5 @@ elif st.session_state.page == "problems":
         st.metric("📍 Location", location)
         st.metric("🗺️ GPX Loaded", "Yes" if location else "No")
 
-    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"})))
+    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
 
