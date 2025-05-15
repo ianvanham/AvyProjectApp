@@ -179,7 +179,7 @@ if st.session_state.page == "terrain":
     except Exception as e:
         st.warning(f"GPX elevation data not loaded: {e}")
 
-    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"})))
+    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
 
 elif st.session_state.page == "weather":
     st.markdown(f"## 🌩️ Weather – {location}")
@@ -271,5 +271,16 @@ elif st.session_state.page == "problems":
     Create backups and define checkpoints for go/no-go.
     """)
     st.markdown("<div style='height:180px;background:#2a2a2a;border-radius:12px;color:white;display:flex;align-items:center;justify-content:center;'>Plan B: shortcut at km 4. Emergency hut open (code 5209)</div>", unsafe_allow_html=True)
-    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
+
+    # Final summary dashboard
+    st.markdown("## 🧾 Summary Dashboard")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("🌡️ Temp", f"{weather.get('temperature', '-')}°C")
+        st.metric("💨 Wind", f"{weather.get('windspeed', '-')}", "km/h")
+    with col2:
+        st.metric("📍 Location", location)
+        st.metric("🗺️ GPX Loaded", "Yes" if location else "No")
+
+    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"})))
 
