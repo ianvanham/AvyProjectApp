@@ -91,43 +91,8 @@ elif st.session_state.page == "checklist":
     st.markdown("---")
     st.markdown("\u274c **Change the activity or prepare yourself better**")
 
-elif st.session_state.page == "terrain":
-    st.header("🧭 Terrain Dangers")
-    st.write("""
-    Understand the terrain risks including avalanche-prone slopes, cliffs, cornices, and crevasses. 
-    Use official avalanche bulletins and terrain classification tools to plan safely.
-    """)
-    import folium
-    from streamlit_folium import st_folium
-
-    coords_map = {
-        "Cervinia": [45.936, 7.627],
-        "Bormio": [46.467, 10.375],
-        "Cortina": [46.538, 12.135]
-    }
-    center = coords_map.get(location, [45.9, 7.6])
-
-    m = folium.Map(location=center, zoom_start=13, tiles='OpenStreetMap')
-    folium.Marker(center, tooltip="Selected Area").add_to(m)
-
-    # Simulated refuge marker
-    folium.Marker([center[0]+0.005, center[1]-0.005], icon=folium.Icon(color='green', icon='info-sign'), tooltip="Mountain Hut").add_to(m)
-
-    # Simulated trail
-    folium.PolyLine(
-        locations=[center, [center[0]+0.006, center[1]+0.002], [center[0]+0.01, center[1]+0.004]],
-        color="blue",
-        weight=4,
-        opacity=0.6,
-        tooltip="Suggested Ski Route"
-    ).add_to(m)
-
-    # Simulated terrain zones (fake polygons)
-    folium.Circle(center, radius=1000, color="red", fill=True, fill_opacity=0.3, tooltip="High Risk Zone").add_to(m)
-    folium.Circle([center[0]+0.01, center[1]+0.01], radius=800, color="orange", fill=True, fill_opacity=0.2, tooltip="Moderate Risk").add_to(m)
-
-    st.markdown("#### Terrain Risk Map")
-    st_folium(m, width=700, height=450)
+
+    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
 
     try:
         df = load_dataset()
@@ -149,8 +114,22 @@ elif st.session_state.page == "terrain":
 
     
 
+
+    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
+
+
+    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
+
+
+    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
+
+
+    st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
+
+
 # --- Weather Section Only for Weather Page ---
 if st.session_state.page == "weather" and location:
+    st.header(f"🌩️ Weather – {location}")
     geo_url = f"https://api.geoapify.com/v1/geocode/search?text={location}&apiKey={GEOAPIFY_API_KEY}"
     geo_response = requests.get(geo_url).json()
 
@@ -226,7 +205,8 @@ if st.session_state.page == "weather" and location:
 
                 table_html += f'''<tr><td>{date}</td><td>{icon}</td><td>{tmax}</td><td>{tmin}</td><td>{wind}</td><td>{precip}</td></tr>'''
 
-            table_html += "</tbody></table>"
+            
+            st.button("🔙 Back to checklist", on_click=lambda: st.session_state.update({"page": "checklist"}))
             st.markdown(table_html, unsafe_allow_html=True)
 
         else:
