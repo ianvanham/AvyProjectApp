@@ -187,7 +187,7 @@ elif st.session_state.page == "weather":
     Check temperature swings, wind speed, and storm alerts.
     Weather determines timing, exposure, and safe windows.
     """)
-    st.markdown("<div style='height:200px;background:#333;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;'>🌡️ Temp: {}°C, 💨 Wind: {} km/h".format(weather.get("temperature", "-"), weather.get("windspeed", "-"))
+    st.markdown("<div style='height:200px;background:#333;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;'>🌡️ Temp: {}°C, 💨 Wind: {} km/h</div>".format(weather.get("temperature", "-"), weather.get("windspeed", "-")), unsafe_allow_html=True
     }
   ]
 }</div>", unsafe_allow_html=True)
