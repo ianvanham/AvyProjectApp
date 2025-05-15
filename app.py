@@ -40,6 +40,8 @@ st.markdown("<h2 style='text-align:center;'>KNOW BEFORE YOU GO</h2>", unsafe_all
 
 # 👇 Aggiungi DA QUI la nuova checklist interattiva (sostituisce l’immagine che dava errore)
 
+# Checklist "AT HOME" - bottoni squadrati centrati, niente colonna sinistra
+
 st.markdown("""
 <style>
 .checklist-button {
@@ -47,13 +49,13 @@ st.markdown("""
     background-color: #1E1E1E;
     color: white;
     border: 2px solid #555;
-    border-radius: 8px;
+    border-radius: 12px;
     padding: 16px;
-    margin: 8px 0;
+    margin: 10px 0;
     width: 100%;
     text-align: center;
     font-weight: 600;
-    font-size: 18px;
+    font-size: 20px;
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
@@ -65,39 +67,25 @@ st.markdown("""
 
 st.markdown("## 🏠 At Home: Analyze and Plan")
 
-col1, col2 = st.columns([1, 1])
-
-with col1:
+# Spazio centrale per bottoni
+col_center = st.container()
+with col_center:
     if st.button("🧭 Terrain dangers", key="terrain_btn"):
         st.session_state.page = "terrain"
-
     if st.button("🌩️ Weather", key="weather_btn"):
         st.session_state.page = "weather"
-
     if st.button("🗺️ Route Study", key="route_btn"):
         st.session_state.page = "route"
-
     if st.button("💪 Capacities", key="cap_btn"):
         st.session_state.page = "capacities"
-
     if st.button("⛏️ Equipment", key="equip_btn"):
         st.session_state.page = "equipment"
-
     if st.button("🧠 Possible problems & solutions", key="prob_btn"):
         st.session_state.page = "problems"
 
-with col2:
-    st.markdown("""
-    <div class='checklist-button'>🧭 Terrain dangers</div>
-    <div class='checklist-button'>🌩️ Weather</div>
-    <div class='checklist-button'>🗺️ Route Study</div>
-    <div class='checklist-button'>💪 Capacities</div>
-    <div class='checklist-button'>⛏️ Equipment</div>
-    <div class='checklist-button'>🧠 Possible problems & solutions</div>
-    """, unsafe_allow_html=True)
-
 st.markdown("---")
 st.markdown("❌ **Change the activity or prepare yourself better**")
+
 
 
 st.markdown("---")
